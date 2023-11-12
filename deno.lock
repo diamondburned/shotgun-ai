@@ -1,0 +1,20 @@
+{
+  "version": "3",
+  "remote": {
+    "https://esm.sh/v133/@tensorflow/tfjs-backend-cpu@4.13.0/denonext/dist/shared.js": "97f0c142365418af9e0b27d16e0eb59d199159815b91e5560bb961ee3f2bad36",
+    "https://esm.sh/v133/@tensorflow/tfjs-backend-cpu@4.13.0/denonext/tfjs-backend-cpu.mjs": "2a61f6d7060ac39a5083cda0c36e4e1b6591a8ea342cb8b626452b6b5343c5fa",
+    "https://esm.sh/v133/@tensorflow/tfjs-backend-webgl@4.13.0/denonext/tfjs-backend-webgl.mjs": "47b2096a0ba2251599174472bf72dc6a6f6fb697e17dd0d7a58ecaf54d07e472",
+    "https://esm.sh/v133/@tensorflow/tfjs-converter@4.13.0/denonext/tfjs-converter.mjs": "29e80b124250bd67477469531a9622d41fc224daeacbc628707f72b3723a58d9",
+    "https://esm.sh/v133/@tensorflow/tfjs-core@4.13.0/denonext/dist/ops/ops_for_converter.js": "147c46c4fb4fa477419db54ea769523b18cad4fb2450a328b3d10fb3c59a86ee",
+    "https://esm.sh/v133/@tensorflow/tfjs-core@4.13.0/denonext/dist/public/chained_ops/register_all_chained_ops.js": "d4a8a1ad87c18aa73930108b990e97e73c642ad8ce05c3fe63839a7a9063f2ca",
+    "https://esm.sh/v133/@tensorflow/tfjs-core@4.13.0/denonext/dist/register_all_gradients.js": "bdb677df495563808a2dd1c136edb7732ecce91cbf38765b9d958395a401b532",
+    "https://esm.sh/v133/@tensorflow/tfjs-core@4.13.0/denonext/tfjs-core.mjs": "050df2f617d2071dd398ccd734cf4ad4ce0f6d8fe7fa609f6592d0f98514dc98",
+    "https://esm.sh/v133/@tensorflow/tfjs-data@4.13.0/denonext/tfjs-data.mjs": "0ce861f58683df429f0558e0d97c111b8a45d36127f769c28c116b4b15ac3e67",
+    "https://esm.sh/v133/@tensorflow/tfjs-layers@4.13.0/denonext/tfjs-layers.mjs": "4d261e4bb86a62a48c2dac03f6c68114e908a82887dc015a738d9a17df7f3e08",
+    "https://esm.sh/v133/@tensorflow/tfjs@4.13.0": "239beb9638b7582eec70ac2a4e7f46fc25519f9667e043a6cbb9ffadae829d69",
+    "https://esm.sh/v133/@tensorflow/tfjs@4.13.0/denonext/tfjs.mjs": "182ee873c0117463189b95bcb602f16de551883ea85dbec79376d81a3f015d12",
+    "https://esm.sh/v133/long@4.0.0/denonext/long.mjs": "9d8381bedbbbafd1f1a5056955eb66cbaa6bb541066f47329ddcb4ac1f1b81fd",
+    "https://esm.sh/v133/node_fetch.js": "b11355358cf61343a3c30bd5942df60a3586d13e2c979b515164bfe851662798",
+    "https://esm.sh/v133/seedrandom@3.0.5/denonext/seedrandom.mjs": "cf4069e842b0324889378cb4922d03f3d8ed42cfadd1410a6b7ea8515693058f"
+  }
+}
