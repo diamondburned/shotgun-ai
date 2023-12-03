@@ -7,7 +7,7 @@ function shortPredictions(predictions: ai.Prediction): string {
   return Object.entries(predictions).map(([_, value]) => value.toFixed(2)).join(", ");
 }
 
-async function train(trainingData: ai.TrainingData): number {
+async function train(trainingData: ai.TrainingData): Promise<number> {
   const trainer = new ai.Trainer();
   let iteration = 0;
   while (true) {
