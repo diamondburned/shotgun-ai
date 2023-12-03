@@ -1,15 +1,30 @@
-import { GameState, Move } from "./game.ts";
+import { Move, PlayerState } from "./game.ts";
 import * as tf from "https://esm.sh/v133/@tensorflow/tfjs@4.13.0";
 
-// export class GameState {
-//   myBulletsLoaded: number;
-//   myShieldsRemaining: number;
-//   myKnifeOut: boolean;
-//   opponentBulletsLoaded: number;
-//   opponentShieldsRemaining: number;
-//   opponentKnifeOut: boolean;
-//   turnCount: number;
-// }
+// GameState determines the state of the game for the current move.
+// It is used by the AI to predict the next move.
+export type GameState = {
+  myBulletsLoaded: number;
+  myShieldsRemaining: number;
+  myKnifeOut: boolean;
+  opponentBulletsLoaded: number;
+  opponentShieldsRemaining: number;
+  opponentKnifeOut: boolean;
+  turnCount: number;
+};
+
+// playerStateToGame converts a pair of PlayerStates to a GameState.
+function playerStateToGame(player: PlayerState, opponent: PlayerState, turn: number): GameState {
+  return {
+    myBulletsLoaded: player.bulletsLoaded,
+    myShieldsRemaining: player.shieldsRemaining,
+    myKnifeOut: player.knifeOut,
+    opponentBulletsLoaded: opponent.bulletsLoaded,
+    opponentShieldsRemaining: opponent.shieldsRemaining,
+    opponentKnifeOut: opponent.knifeOut,
+    turnCount: turn,
+  };
+}
 
 export type TrainingData = {
   name?: string;

@@ -1,15 +1,3 @@
-// GameState determines the state of the game for the current move.
-// It is used by the AI to predict the next move.
-export class GameState {
-  myBulletsLoaded: number;
-  myShieldsRemaining: number;
-  myKnifeOut: boolean;
-  opponentBulletsLoaded: number;
-  opponentShieldsRemaining: number;
-  opponentKnifeOut: boolean;
-  turnCount: number;
-}
-
 // Move is an enum of all possible moves.
 export enum Move {
   Reload = "reload",
@@ -17,4 +5,140 @@ export enum Move {
   Block = "block",
   TakeOutKnife = "takeOutKnife",
   Stab = "stab",
+}
+
+interface Player {
+  // play asks the player to make a move. It blocks until the player makes a
+  // move.
+  play(me: PlayerState, opponent: PlayerState, turn: number): Promise<Move>;
+}
+
+export enum Outcome {
+  Draw = "draw",
+  Player1Wins = "player1Wins",
+  Player2Wins = "player2Wins",
+  IllegalMove = "illegalMove",
+}
+
+export class PlayerState {
+  bulletsLoaded = 0;
+  shieldsRemaining = 9;
+  knifeOut = false;
+
+  constructor(
+    public readonly player: Player,
+  ) {}
+
+  // play asks the player to make a move. It blocks until the player makes a
+  // move.
+  play(opponent: PlayerState, turn: number): Promise<Move> {
+    return this.player.play(this, opponent, turn);
+  }
+
+  // update updates the player's state based on the move they made.
+  // If the move is illegal, it returns false.
+  update(move: Move): boolean {
+    switch (move) {
+      case Move.Reload:
+        this.bulletsLoaded++;
+        break;
+      case Move.Shoot:
+        if (!this.canShoot) {
+          return false;
+        }
+        this.bulletsLoaded--;
+        break;
+      case Move.Block:
+        if (!this.canBlock) {
+          return false;
+        }
+        break;
+      case Move.TakeOutKnife:
+        this.knifeOut = true;
+        break;
+      case Move.Stab:
+        if (!this.canStab) {
+          return false;
+        }
+        break;
+    }
+    return true;
+  }
+
+  get canStab(): boolean {
+    return this.knifeOut;
+  }
+
+  get canShoot(): boolean {
+    return this.bulletsLoaded > 0;
+  }
+
+  get canBlock(): boolean {
+    return this.shieldsRemaining > 0;
+  }
+}
+
+// moveKillsOpponent returns true if the player kills the opponent with the
+// given move.
+function moveKillsOpponent(playerMove: Move, opponentMove: Move): boolean {
+  switch (playerMove) {
+    case Move.Reload:
+    case Move.Block:
+    case Move.TakeOutKnife:
+      return false;
+    case Move.Shoot:
+      return opponentMove != Move.Block;
+    case Move.Stab:
+      return true;
+  }
+}
+
+export class Game {
+  turn = 0;
+  moves: [Move, Move][] = [];
+  states: [PlayerState, PlayerState];
+
+  constructor(
+    player1: Player,
+    player2: Player,
+  ) {
+    this.states = [
+      new PlayerState(player1),
+      new PlayerState(player2),
+    ];
+  }
+
+  // play asks the players to make a move. It blocks until both players make a
+  // move, then returns the outcome of the game. The game should be played
+  // until the outcome is not a draw.
+  async play(): Promise<Outcome> {
+    this.turn++;
+
+    const [p1State, p2State] = this.states;
+    const [p1Move, p2Move] = await Promise.all([
+      p1State.play(p2State, this.turn),
+      p2State.play(p1State, this.turn),
+    ]);
+
+    if (!p1State.update(p1Move) || !p2State.update(p2Move)) {
+      return Outcome.IllegalMove;
+    }
+
+    this.moves.push([p1Move, p2Move]);
+
+    const p1Kills = moveKillsOpponent(p1Move, p2Move);
+    const p2Kills = moveKillsOpponent(p2Move, p1Move);
+
+    if (p1Kills == p2Kills) {
+      return Outcome.Draw;
+    }
+
+    if (p1Kills) {
+      return Outcome.Player1Wins;
+    }
+
+    if (p2Kills) {
+      return Outcome.Player2Wins;
+    }
+  }
 }
