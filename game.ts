@@ -35,33 +35,40 @@ export class PlayerState {
     return this.player.play(this, opponent, turn);
   }
 
+  private moveLegality = {
+    [Move.Reload]: () => this.canReload,
+    [Move.Shoot]: () => this.canShoot,
+    [Move.Block]: () => this.canBlock,
+    [Move.TakeOutKnife]: () => this.canTakeOutKnife,
+    [Move.Stab]: () => this.canStab,
+  };
+
+  // isLegal returns true if the given move is legal.
+  isLegal(move: Move): boolean {
+    return this.moveLegality[move]();
+  }
+
   // update updates the player's state based on the move they made.
   // If the move is illegal, it returns false.
   update(move: Move): boolean {
+    if (!this.isLegal(move)) {
+      return false;
+    }
     switch (move) {
       case Move.Reload:
         this.bulletsLoaded++;
         break;
       case Move.Shoot:
-        if (!this.canShoot) {
-          return false;
-        }
         this.bulletsLoaded--;
-        break;
-      case Move.Block:
-        if (!this.canBlock) {
-          return false;
-        }
         break;
       case Move.TakeOutKnife:
         this.knifeOut = true;
         break;
-      case Move.Stab:
-        if (!this.canStab) {
-          return false;
-        }
-        break;
     }
+    return true;
+  }
+
+  get canReload(): boolean {
     return true;
   }
 
@@ -76,6 +83,10 @@ export class PlayerState {
   get canBlock(): boolean {
     return this.shieldsRemaining > 0;
   }
+
+  get canTakeOutKnife(): boolean {
+    return !this.knifeOut;
+  }
 }
 
 // moveKillsOpponent returns true if the player kills the opponent with the
@@ -87,9 +98,8 @@ function moveKillsOpponent(playerMove: Move, opponentMove: Move): boolean {
     case Move.TakeOutKnife:
       return false;
     case Move.Shoot:
-      return opponentMove != Move.Block;
     case Move.Stab:
-      return true;
+      return opponentMove != Move.Block;
   }
 }
 
