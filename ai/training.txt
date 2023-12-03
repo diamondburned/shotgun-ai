@@ -1,0 +1,16 @@
+when we can kill:
+- opp has zero blocks, we have knife out or bullets loaded
+- opp reload with knife out, we have knife out or 2+ bullets loaded 
+- opp reload without knife out, we have knife out or 1+ bullets loaded
+- opp knife out, we have knife out or 1+ bullets loaded
+
+
+when we can die:
+- we have zero blocks, opp has knife out or bullets loaded
+- we reload with knife out, opp has knife out or 2+ bullets loaded 
+- we reload without knife out, opp has knife out or 1+ bullets loaded
+- we knife out, opp has knife out or 1+ bullets loaded
+
+when we can tie:
+- we have 2+ bullets reloaded, opp has 2+ bullets reloaded
+- we have knife out and 0 bullets, opp has knife out and 0 bullets
