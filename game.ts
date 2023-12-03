@@ -7,10 +7,13 @@ export enum Move {
   Stab = "stab",
 }
 
-interface Player {
+export interface Player {
   // play asks the player to make a move. It blocks until the player makes a
   // move.
-  play(me: PlayerState, opponent: PlayerState, turn: number): Promise<Move>;
+  play(): Promise<Move>;
+  // update is called after the opponent makes a move. It is called with the
+  // player's state, the opponent's state, and the turn number.
+  update(me: PlayerState, opponent: PlayerState, turn: number): void;
 }
 
 export enum Outcome {
@@ -29,23 +32,20 @@ export class PlayerState {
     public readonly player: Player,
   ) {}
 
-  // play asks the player to make a move. It blocks until the player makes a
-  // move.
-  play(opponent: PlayerState, turn: number): Promise<Move> {
-    return this.player.play(this, opponent, turn);
-  }
-
-  private moveLegality = {
-    [Move.Reload]: () => this.canReload,
-    [Move.Shoot]: () => this.canShoot,
-    [Move.Block]: () => this.canBlock,
-    [Move.TakeOutKnife]: () => this.canTakeOutKnife,
-    [Move.Stab]: () => this.canStab,
-  };
-
   // isLegal returns true if the given move is legal.
   isLegal(move: Move): boolean {
-    return this.moveLegality[move]();
+    switch (move) {
+      case Move.Reload:
+        return this.canReload;
+      case Move.Shoot:
+        return this.canShoot;
+      case Move.Block:
+        return this.canBlock;
+      case Move.TakeOutKnife:
+        return this.canTakeOutKnife;
+      case Move.Stab:
+        return this.canStab;
+    }
   }
 
   // update updates the player's state based on the move they made.
@@ -57,6 +57,9 @@ export class PlayerState {
     switch (move) {
       case Move.Reload:
         this.bulletsLoaded++;
+        break;
+      case Move.Block:
+        this.shieldsRemaining--;
         break;
       case Move.Shoot:
         this.bulletsLoaded--;
@@ -116,25 +119,26 @@ export class Game {
       new PlayerState(player1),
       new PlayerState(player2),
     ];
+    this.updatePlayers();
   }
 
   // play asks the players to make a move. It blocks until both players make a
   // move, then returns the outcome of the game. The game should be played
   // until the outcome is not a draw.
   async play(): Promise<Outcome> {
-    this.turn++;
-
     const [p1State, p2State] = this.states;
     const [p1Move, p2Move] = await Promise.all([
-      p1State.play(p2State, this.turn),
-      p2State.play(p1State, this.turn),
+      p1State.player.play(),
+      p2State.player.play(),
     ]);
 
     if (!p1State.update(p1Move) || !p2State.update(p2Move)) {
       return Outcome.IllegalMove;
     }
 
+    this.turn++;
     this.moves.push([p1Move, p2Move]);
+    this.updatePlayers();
 
     const p1Kills = moveKillsOpponent(p1Move, p2Move);
     const p2Kills = moveKillsOpponent(p2Move, p1Move);
@@ -150,5 +154,11 @@ export class Game {
     if (p2Kills) {
       return Outcome.Player2Wins;
     }
+  }
+
+  private updatePlayers() {
+    const [p1State, p2State] = this.states;
+    p1State.player.update(p1State, p2State, this.turn);
+    p2State.player.update(p2State, p1State, this.turn);
   }
 }

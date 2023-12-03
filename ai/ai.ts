@@ -1,5 +1,5 @@
-import { Move, PlayerState } from "./game.ts";
-import * as tf from "https://esm.sh/v133/@tensorflow/tfjs@4.13.0";
+import { Move, PlayerState } from "/game.ts";
+import * as tf from "esm.sh/@tensorflow/tfjs@4.13.0";
 
 // GameState determines the state of the game for the current move.
 // It is used by the AI to predict the next move.
@@ -12,19 +12,6 @@ export type GameState = {
   opponentKnifeOut: boolean;
   turnCount: number;
 };
-
-// playerStateToGame converts a pair of PlayerStates to a GameState.
-function playerStateToGame(player: PlayerState, opponent: PlayerState, turn: number): GameState {
-  return {
-    myBulletsLoaded: player.bulletsLoaded,
-    myShieldsRemaining: player.shieldsRemaining,
-    myKnifeOut: player.knifeOut,
-    opponentBulletsLoaded: opponent.bulletsLoaded,
-    opponentShieldsRemaining: opponent.shieldsRemaining,
-    opponentKnifeOut: opponent.knifeOut,
-    turnCount: turn,
-  };
-}
 
 export type TrainingData = {
   name?: string;
@@ -195,4 +182,36 @@ export function predictionIsGood(prediction: Prediction, move: Move, tolerance: 
   Tolerance < MinTol: True
   return True.
   */
+}
+
+export class AIPlayer {
+  private player: PlayerState;
+  private opponent: PlayerState;
+  private turn: number;
+
+  constructor(private model: tf.LayersModel) {}
+
+  async play(): Promise<Move> {
+    const prediction = await predict(this.model, {
+      myBulletsLoaded: this.player.bulletsLoaded,
+      myShieldsRemaining: this.player.shieldsRemaining,
+      myKnifeOut: this.player.knifeOut,
+      opponentBulletsLoaded: this.opponent.bulletsLoaded,
+      opponentShieldsRemaining: this.opponent.shieldsRemaining,
+      opponentKnifeOut: this.opponent.knifeOut,
+      turnCount: this.turn,
+    });
+    for (const move of Object.values(Move)) {
+      if (!this.player.isLegal(move)) {
+        prediction[move as string] = -Infinity;
+      }
+    }
+    return bestMove(prediction);
+  }
+
+  update(player: PlayerState, opponent: PlayerState, turn: number) {
+    this.player = player;
+    this.opponent = opponent;
+    this.turn = turn;
+  }
 }

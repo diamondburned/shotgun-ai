@@ -4,5 +4,6 @@ pkgs.mkShell {
 	buildInputs = with pkgs; [
 		deno
 		libtensorflow
+		nodePackages.prettier
 	];
 }

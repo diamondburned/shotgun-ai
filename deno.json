@@ -10,5 +10,14 @@
   },
   "fmt": {
     "lineWidth": 100
+  },
+  "tasks": {
+    "bundle": "deno bundle index.ts index.js",
+    "server": "deno run -A https://deno.land/std@0.208.0/http/file_server.ts -p 9000",
+    "serve": "deno task bundle && deno task server"
+  },
+  "imports": {
+    "/": "./",
+    "esm.sh/": "https://esm.sh/v133/"
   }
 }

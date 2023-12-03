@@ -1,0 +1,132 @@
+<!doctype html>
+<title>Shotgun Game</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="darkreader-lock" />
+
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css"
+/>
+<link rel="stylesheet" href="static/style.css" />
+
+<body data-theme="dark" class="container">
+  <header>
+    <hgroup>
+      <h1>The Shotgun Game</h1>
+      <p>
+        (<a href="https://www.wikihow.com/Play-the-Shotgun-Game" target="_blank"
+          >How to play</a
+        >)
+      </p>
+    </hgroup>
+
+    <p>Turn <span id="turn">1</span></p>
+  </header>
+
+  <main>
+    <section id="player1">
+      <h2>🧑 You</h2>
+
+      <div class="player-state">
+        <span class="bullets"></span>
+        <span class="blocks"></span>
+      </div>
+
+      <form class="player-moves"></form>
+
+      <div class="last-move">
+        <button class="player-move blank-move" disabled></button>
+      </div>
+    </section>
+
+    <div id="vs">
+      <span class="result">vs.</span>
+    </div>
+
+    <section id="player2">
+      <div class="last-move">
+        <button class="player-move blank-move" disabled></button>
+      </div>
+
+      <div class="player-state">
+        <span class="bullets"></span>
+        <span class="blocks"></span>
+        <span class="knife"></span>
+      </div>
+
+      <h2>🤖 AI</h2>
+    </section>
+  </main>
+
+  <footer>
+    <h2>History</h2>
+  </footer>
+</body>
+
+<template id="template-button-reload">
+  <button
+    class="player-move"
+    type="submit"
+    name="move"
+    value="reload"
+    title="Reload"
+  >
+    <img class="svgrepo" src="static/icons/bullet.svg" />
+    <span>Reload</span>
+  </button>
+</template>
+
+<template id="template-button-shoot">
+  <button
+    class="player-move"
+    type="submit"
+    name="move"
+    value="shoot"
+    title="Shoot"
+  >
+    <img class="svgrepo" src="static/icons/gun.svg" />
+    <span>Shoot</span>
+  </button>
+</template>
+
+<template id="template-button-block">
+  <button
+    class="player-move"
+    type="submit"
+    name="move"
+    value="block"
+    title="Block"
+  >
+    <img class="svgrepo" src="static/icons/shield.svg" />
+    <span>Block</span>
+  </button>
+</template>
+
+<template id="template-button-take-out-knife" title="Take out knife">
+  <button
+    class="player-move"
+    type="submit"
+    name="move"
+    value="takeOutKnife"
+    title="Take out knife"
+  >
+    <img class="svgrepo" src="static/icons/knife-sheath.svg" />
+    <span>Knife out</span>
+  </button>
+</template>
+
+<template id="template-button-stab">
+  <button
+    class="player-move"
+    type="submit"
+    name="move"
+    value="stab"
+    title="Stab"
+  >
+    <img class="svgrepo" src="static/icons/knife-blood.svg" />
+    <span>Stab</span>
+  </button>
+</template>
+
+<script src="index.js" type="module"></script>

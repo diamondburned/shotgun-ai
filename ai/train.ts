@@ -1,7 +1,7 @@
 #!/usr/bin/env -S deno run -A
 
-import trainingData from "./training_data.ts";
-import * as ai from "./game_ai.ts";
+import trainingData from "/ai/training_data.ts";
+import * as ai from "/ai/ai.ts";
 
 function shortPredictions(predictions: ai.Prediction): string {
   return Object.entries(predictions).map(([_, value]) => value.toFixed(2)).join(", ");
