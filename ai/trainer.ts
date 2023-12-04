@@ -79,18 +79,19 @@ export class Trainer {
     let saveOutput: string | tf.io.IOHandler = path;
 
     if (path.startsWith("file://")) {
-      const filePath = path.slice("file://".length);
+      const url = new URL(path);
+      const filePath = decodeURIComponent(url.pathname);
 
       saveOutput = tf.io.withSaveHandler(async (artifacts) => {
         // Allow arbitrary interruption by saving into a temporary file
         // then atomically moving it into place. This trick does not work
         // on Windows :)
-        // const saveTime = new Date().getTime();
-        // const tempFile = `${filePath}.${saveTime}-${tempCounter++}.tmp`;
+        const saveTime = new Date().getTime();
+        const tempFile = `${filePath}.${saveTime}-${tempCounter++}.tmp`;
 
         const fileData = tfModelSave(artifacts);
-        await Deno.writeTextFile(filePath, fileData);
-        // await Deno.rename(tempFile, filePath);
+        await Deno.writeTextFile(tempFile, fileData);
+        await Deno.rename(tempFile, filePath);
 
         return {
           modelArtifactsInfo: {
