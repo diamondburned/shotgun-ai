@@ -75,6 +75,7 @@ export class Trainer {
 
     await this.model.fit(xs, ys, {
       epochs: options.epochs,
+      batchSize: 32,
       classWeight,
     });
 
@@ -100,9 +101,9 @@ export type Prediction = {
 //   - Block:        [0, 0, 1, 0, 0]
 //   - TakeOutKnife: [0, 0, 0, 1, 0]
 //   - Stab:         [0, 0, 0, 0, 1]
-function movePrediction(move: Move): Prediction {
+function movePrediction(move: Move, value = 1): Prediction {
   const prediction: Prediction = { reload: 0, shoot: 0, block: 0, takeOutKnife: 0, stab: 0 };
-  prediction[move] = 1;
+  prediction[move] = value;
   return prediction;
 }
 
