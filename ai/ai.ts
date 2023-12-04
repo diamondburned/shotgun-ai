@@ -27,12 +27,19 @@ export type Prediction = {
 export type Model = tf.LayersModel;
 
 type SupportedLoadPath =
+  | `file://${string}`
   | `http://${string}`
   | `https://${string}`;
 
 // load loads a model from the given path.
 export async function load(path: SupportedLoadPath): Promise<Model> {
   let loadInput: string | tf.io.IOHandler = path;
+
+  if (path.startsWith("file://")) {
+    const filepath = path.slice("file://".length);
+    const fileData = await Deno.readTextFile(filepath);
+    loadInput = tfModelLoader(fileData);
+  }
 
   if (path.startsWith("http://") || path.startsWith("https://")) {
     const response = await fetch(path);

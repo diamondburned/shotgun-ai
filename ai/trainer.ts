@@ -24,7 +24,6 @@ export type TrainingData = {
 
 export type TrainOptions = Partial<{
   epochs: number;
-  moveWeight: Prediction;
 }>;
 
 type SupportedSavePath = `file://${string}`;
@@ -34,13 +33,19 @@ type SupportedSavePath = `file://${string}`;
 // for a given game state.
 export class Trainer {
   // constructor creates a new empty model.
-  constructor(readonly model = tf.sequential()) {
-    this.model.add(tf.layers.dense({ units: 7, inputShape: [7] }));
-    // this.model.add(tf.layers.dense({ units: 7, activation: "relu" }));
-    // this.model.add(tf.layers.dense({ units: 7, activation: "relu" }));
-    this.model.add(tf.layers.dropout({ rate: 0.5 }));
-    this.model.add(tf.layers.dropout({ rate: 0.2 }));
-    this.model.add(tf.layers.dense({ units: 5, activation: "softmax" }));
+  constructor(private model?: tf.LayersModel) {
+    if (!model) {
+      const model = tf.sequential();
+
+      model.add(tf.layers.dense({ units: 7, inputShape: [7] }));
+      // this.model.add(tf.layers.dense({ units: 7, activation: "relu" }));
+      // this.model.add(tf.layers.dense({ units: 7, activation: "relu" }));
+      model.add(tf.layers.dropout({ rate: 0.5 }));
+      model.add(tf.layers.dropout({ rate: 0.2 }));
+      model.add(tf.layers.dense({ units: 5, activation: "softmax" }));
+
+      this.model = model;
+    }
 
     this.model.compile({
       optimizer: "adam",
@@ -54,25 +59,13 @@ export class Trainer {
     state: GameState,
     intended: Move,
     options: TrainOptions = {},
-    // epochs = 1,
-    // moveWeight?: Prediction,
   ) {
     const xs = tensorGameState(state);
     const ys = tensorPrediction(movePrediction(intended));
 
-    let classWeight: { [key: number]: number } | undefined;
-    if (options.moveWeight) {
-      classWeight = {};
-      const entries = Object.entries(options.moveWeight);
-      for (let i = 0; i < entries.length; i++) {
-        classWeight[i] = entries[i][1];
-      }
-    }
-
     await this.model.fit(xs, ys, {
       epochs: options.epochs,
       batchSize: 32,
-      classWeight,
     });
 
     // Dispose of the tensors.
@@ -87,8 +80,15 @@ export class Trainer {
       const filePath = path.slice("file://".length);
 
       saveOutput = tf.io.withSaveHandler(async (artifacts) => {
+        // Allow arbitrary interruption by saving into a temporary file
+        // then atomically moving it into place. This trick does not work
+        // on Windows :)
+        const saveTime = new Date().getTime();
+        const tempFile = `${filePath}.${saveTime}.tmp`;
+
         const fileData = tfModelSave(artifacts);
-        await Deno.writeTextFile(filePath, fileData);
+        await Deno.writeTextFile(tempFile, fileData);
+        await Deno.rename(tempFile, filePath);
 
         return {
           modelArtifactsInfo: {
