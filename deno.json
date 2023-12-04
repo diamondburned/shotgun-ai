@@ -17,6 +17,7 @@
     "serve": "deno task bundle && deno task server"
   },
   "imports": {
+    "./": "./",
     "/": "./",
     "esm.sh/": "https://esm.sh/v133/"
   }

@@ -26,6 +26,11 @@ export type TrainingData = {
   tolerance: number;
 }[];
 
+export type TrainOptions = Partial<{
+  epochs: number;
+  moveWeight: Prediction;
+}>;
+
 // Trainer defines a class that can train a model to play the shotgun game.
 // It exposes a model field that can be given to predict() to get a prediction
 // for a given game state.
@@ -49,11 +54,29 @@ export class Trainer {
   }
 
   // train trains the model to predict the given move for the given game state.
-  async train(state: GameState, intended: Move, epochs = 1) {
-    const ys = tensorPrediction(movePrediction(intended));
+  async train(
+    state: GameState,
+    intended: Move,
+    options: TrainOptions = {},
+    // epochs = 1,
+    // moveWeight?: Prediction,
+  ) {
     const xs = tensorGameState(state);
+    const ys = tensorPrediction(movePrediction(intended));
 
-    await this.model.fit(xs, ys, { epochs });
+    let classWeight: { [key: number]: number } | undefined;
+    if (options.moveWeight) {
+      classWeight = {};
+      const entries = Object.entries(options.moveWeight);
+      for (let i = 0; i < entries.length; i++) {
+        classWeight[i] = entries[i][1];
+      }
+    }
+
+    await this.model.fit(xs, ys, {
+      epochs: options.epochs,
+      classWeight,
+    });
 
     // Dispose of the tensors.
     xs.dispose();
@@ -117,7 +140,7 @@ export function bestMove(prediction: Prediction): Move {
   return maxName as Move;
 }
 
-function tensorGameState(state: GameState): tf.Tensor2D {
+export function tensorGameState(state: GameState): tf.Tensor2D {
   return tf.tensor2d([
     state.myBulletsLoaded,
     state.myShieldsRemaining,
@@ -129,7 +152,7 @@ function tensorGameState(state: GameState): tf.Tensor2D {
   ], [1, 7]);
 }
 
-function tensorPrediction(prediction: Prediction): tf.Tensor2D {
+export function tensorPrediction(prediction: Prediction): tf.Tensor2D {
   return tf.tensor2d([
     prediction.reload,
     prediction.shoot,

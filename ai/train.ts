@@ -1,7 +1,11 @@
 #!/usr/bin/env -S deno run -A
 
+import { Move } from "/game.ts";
 import trainingData from "/ai/training_data.ts";
 import * as ai from "/ai/ai.ts";
+
+const weightLow = 0.1;
+const weightHigh = 1.0;
 
 function shortPredictions(predictions: ai.Prediction): string {
   return Object.entries(predictions).map(([_, value]) => value.toFixed(2)).join(", ");
@@ -19,7 +23,18 @@ async function train(trainingData: ai.TrainingData): Promise<number> {
       console.log(`  training on ${trainingCase.name}...`);
       for (const data of trainingCase.data) {
         const epochs = data.epochs || trainingCase.epochs;
-        await trainer.train(data.state, data.move, epochs);
+        await trainer.train(data.state, data.move, {
+          epochs: epochs,
+          // moveWeight: Object
+          //   .values(Move)
+          //   .reduce(
+          //     (acc, move) => {
+          //       acc[move] = move === data.move ? weightHigh : weightLow;
+          //       return acc;
+          //     },
+          //     {} as ai.Prediction,
+          //   ),
+        });
       }
     }
 
