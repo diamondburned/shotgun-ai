@@ -1,6 +1,6 @@
 import { Move } from "/game.ts";
-import { Model, Prediction, tensorGameState } from "/ai/ai.ts";
-import * as tf from "esm.sh/@tensorflow/tfjs@4.14.0?target=es2022";
+import { GameState, Model, Prediction, tensorGameState } from "/ai/ai.ts";
+import * as tf from "@tensorflow/tfjs";
 
 // predict predicts the best move for a given game state.
 // It accepts a pre-trained model and returns a prediction.

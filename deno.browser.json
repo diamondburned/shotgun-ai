@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "lib": [
+      "esnext",
+      "dom",
+      "dom.iterable"
+    ],
+    "noFallthroughCasesInSwitch": true,
+    "strict": false
+  },
+  "imports": {
+    "./": "./",
+    "/": "./",
+    "std/": "https://deno.land/std@0.166.0/",
+    "@tensorflow/tfjs": "https://esm.sh/v133/@tensorflow/tfjs@4.14.0?target=esnext"
+  }
+}

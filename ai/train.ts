@@ -55,17 +55,17 @@ async function train(trainingData: TrainingData): Promise<void> {
         const tolerance = data.tolerance || trainingCase.tolerance;
 
         const prediction = await predict(trainer.model, data.state);
-        const predictionString = shortPredictions(prediction);
-        const predictionIsGood = predictionIsGood(prediction, data.move, tolerance);
+        const string = shortPredictions(prediction);
+        const isGood = predictionIsGood(prediction, data.move, tolerance);
 
         const info = [
-          `prediction=${predictionString}`,
-          `good=${predictionIsGood ? "1" : "0"}`,
+          `prediction=${string}`,
+          `good=${isGood ? "1" : "0"}`,
           `want=${data.move}`,
         ].join(", ");
         output += `    ${info}: ${data.name}` + "\n";
 
-        if (!predictionIsGood) {
+        if (!isGood) {
           metTolerance = false;
         }
       }

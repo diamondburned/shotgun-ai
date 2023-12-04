@@ -6,7 +6,8 @@ import { denoPlugins } from "https://deno.land/x/esbuild_deno_loader@0.8.2/mod.t
 await esbuild.build({
   plugins: [
     ...denoPlugins({
-      configPath: path.resolve("./deno.json"),
+      configPath: path.resolve("./deno.browser.json"),
+      loader: "portable",
     }),
   ],
   entryPoints: ["frontend/index.ts"],

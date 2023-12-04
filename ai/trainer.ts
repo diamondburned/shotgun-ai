@@ -7,7 +7,7 @@ import {
   tensorPrediction,
   tfModelSave,
 } from "/ai/ai.ts";
-import * as tf from "esm.sh/@tensorflow/tfjs@4.14.0?target=es2022";
+import * as tf from "@tensorflow/tfjs";
 
 export type TrainingData = {
   name?: string;

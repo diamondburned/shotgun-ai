@@ -1,5 +1,5 @@
 import { Move } from "/game.ts";
-import * as tf from "esm.sh/@tensorflow/tfjs@4.14.0?target=es2022";
+import * as tf from "@tensorflow/tfjs";
 
 // GameState determines the state of the game for the current move.
 // It is used by the AI to predict the next move.
