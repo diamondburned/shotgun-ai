@@ -44,19 +44,19 @@ const data: TrainingData = [
         },
         move: Move.TakeOutKnife,
       },
-      {
-        name: "If Reloaded Into Reload, Just Shoot",
-        state: {
-          myBulletsLoaded: 1,
-          myShieldsRemaining: 9,
-          myKnifeOut: false,
-          opponentBulletsLoaded: 1,
-          opponentShieldsRemaining: 9,
-          opponentKnifeOut: false,
-          turnCount: 1,
-        },
-        move: Move.Shoot,
-      },
+      // {
+      //   name: "If Reloaded Into Reload, Just Shoot",
+      //   state: {
+      //     myBulletsLoaded: 1,
+      //     myShieldsRemaining: 9,
+      //     myKnifeOut: false,
+      //     opponentBulletsLoaded: 1,
+      //     opponentShieldsRemaining: 9,
+      //     opponentKnifeOut: false,
+      //     turnCount: 1,
+      //   },
+      //   move: Move.Shoot,
+      // },
     ],
     epochs: 20,
     tolerance: 0.01,
@@ -75,7 +75,7 @@ const data: TrainingData = [
           opponentKnifeOut: true,
           turnCount: 8,
         },
-        move: Move.Reload,  
+        move: Move.Reload,
       },
       {
         name: "Getting In Position To Stab",
@@ -88,7 +88,7 @@ const data: TrainingData = [
           opponentKnifeOut: false,
           turnCount: 4,
         },
-        move: Move.TakeOutKnife,  
+        move: Move.TakeOutKnife,
       },
       {
         name: "Getting In Position To Shoot",
@@ -101,7 +101,7 @@ const data: TrainingData = [
           opponentKnifeOut: true,
           turnCount: 3,
         },
-        move: Move.Reload,  
+        move: Move.Reload,
       },
       {
         name: "Getting Suspicious of an Attacker",
@@ -142,8 +142,6 @@ const data: TrainingData = [
         },
         move: Move.Reload,
       },
-      
-
     ],
     epochs: 20,
     tolerance: 0.05,
@@ -162,7 +160,7 @@ const data: TrainingData = [
           opponentKnifeOut: true,
           turnCount: 12,
         },
-        move: Move.Shoot,  
+        move: Move.Shoot,
       },
       {
         name: "We Stab when They Can't Shoot: 1 to 9",
@@ -175,7 +173,7 @@ const data: TrainingData = [
           opponentKnifeOut: false,
           turnCount: 5,
         },
-        move: Move.Stab,  
+        move: Move.Stab,
       },
       {
         name: "We Stab when They Can't Shoot: 1 to 5",
@@ -188,7 +186,7 @@ const data: TrainingData = [
           opponentKnifeOut: false,
           turnCount: 9,
         },
-        move: Move.Stab,  
+        move: Move.Stab,
       },
       {
         name: "We Shoot when They Can Stab",
@@ -201,7 +199,7 @@ const data: TrainingData = [
           opponentKnifeOut: true,
           turnCount: 4,
         },
-        move: Move.Shoot,  
+        move: Move.Shoot,
       },
       {
         name: "We Have Too Many Bullets: 10 to 9",
@@ -214,7 +212,7 @@ const data: TrainingData = [
           opponentKnifeOut: true,
           turnCount: 13,
         },
-        move: Move.Shoot,  
+        move: Move.Shoot,
       },
       {
         name: "We Have Too Many Bullets: 5 to 4",
@@ -227,7 +225,7 @@ const data: TrainingData = [
           opponentKnifeOut: true,
           turnCount: 18,
         },
-        move: Move.Shoot,  
+        move: Move.Shoot,
       },
       {
         name: "We Have Bullet Surplus",
@@ -240,10 +238,8 @@ const data: TrainingData = [
           opponentKnifeOut: true,
           turnCount: 4,
         },
-        move: Move.Shoot,  
-      }
-      , 
-      
+        move: Move.Shoot,
+      },
     ],
     epochs: 10,
     tolerance: 0.01,

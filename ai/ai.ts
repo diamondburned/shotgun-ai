@@ -1,5 +1,5 @@
-import { Move, PlayerState } from "/game.ts";
-import * as tf from "esm.sh/@tensorflow/tfjs@4.13.0";
+import { Move } from "/game.ts";
+import * as tf from "esm.sh/@tensorflow/tfjs@4.14.0?target=es2022";
 
 // GameState determines the state of the game for the current move.
 // It is used by the AI to predict the next move.
@@ -13,78 +13,6 @@ export type GameState = {
   turnCount: number;
 };
 
-export type TrainingData = {
-  name?: string;
-  data: {
-    name?: string;
-    state: GameState;
-    move: Move;
-    epochs?: number; // default to <parent>.epochs
-    tolerance?: number; // default to <parent>.tolerance
-  }[];
-  epochs: number;
-  tolerance: number;
-}[];
-
-export type TrainOptions = Partial<{
-  epochs: number;
-  moveWeight: Prediction;
-}>;
-
-// Trainer defines a class that can train a model to play the shotgun game.
-// It exposes a model field that can be given to predict() to get a prediction
-// for a given game state.
-export class Trainer {
-  readonly model = tf.sequential();
-
-  // constructor creates a new empty model.
-  constructor() {
-    this.model.add(tf.layers.dense({ units: 7, inputShape: [7] }));
-    // this.model.add(tf.layers.dense({ units: 7, activation: "relu" }));
-    // this.model.add(tf.layers.dense({ units: 7, activation: "relu" }));
-    this.model.add(tf.layers.dropout({ rate: 0.5 }));
-    this.model.add(tf.layers.dropout({ rate: 0.2 }));
-    this.model.add(tf.layers.dense({ units: 5, activation: "softmax" }));
-
-    this.model.compile({
-      optimizer: "adam",
-      loss: "meanSquaredError",
-      metrics: ["accuracy"],
-    });
-  }
-
-  // train trains the model to predict the given move for the given game state.
-  async train(
-    state: GameState,
-    intended: Move,
-    options: TrainOptions = {},
-    // epochs = 1,
-    // moveWeight?: Prediction,
-  ) {
-    const xs = tensorGameState(state);
-    const ys = tensorPrediction(movePrediction(intended));
-
-    let classWeight: { [key: number]: number } | undefined;
-    if (options.moveWeight) {
-      classWeight = {};
-      const entries = Object.entries(options.moveWeight);
-      for (let i = 0; i < entries.length; i++) {
-        classWeight[i] = entries[i][1];
-      }
-    }
-
-    await this.model.fit(xs, ys, {
-      epochs: options.epochs,
-      batchSize: 32,
-      classWeight,
-    });
-
-    // Dispose of the tensors.
-    xs.dispose();
-    ys.dispose();
-  }
-}
-
 // Prediction defines a prediction for a given game state.
 // It represents the probability of each move.
 export type Prediction = {
@@ -95,62 +23,53 @@ export type Prediction = {
   stab: number;
 };
 
-// movePrediction converts a move to a prediction, where:
-//   - Reload:       [1, 0, 0, 0, 0]
-//   - Shoot:        [0, 1, 0, 0, 0]
-//   - Block:        [0, 0, 1, 0, 0]
-//   - TakeOutKnife: [0, 0, 0, 1, 0]
-//   - Stab:         [0, 0, 0, 0, 1]
-function movePrediction(move: Move, value = 1): Prediction {
-  const prediction: Prediction = { reload: 0, shoot: 0, block: 0, takeOutKnife: 0, stab: 0 };
-  prediction[move] = value;
-  return prediction;
-}
+// Model defines a TensorFlow model.
+export type Model = tf.LayersModel;
 
-// predict predicts the best move for a given game state.
-// It accepts a pre-trained model and returns a prediction.
-// To get the best move, use bestMove(prediction).
-export async function predict(model: tf.LayersModel, state: GameState): Promise<Prediction> {
-  const xs = tensorGameState(state);
-  const ys = model.predict(xs) as tf.Tensor2D;
-  const predictionArray = await ys.data() as Float32Array;
-  const prediction: Prediction = {
-    reload: predictionArray[0],
-    shoot: predictionArray[1],
-    block: predictionArray[2],
-    takeOutKnife: predictionArray[3],
-    stab: predictionArray[4],
-  };
+type SupportedLoadPath =
+  | `http://${string}`
+  | `https://${string}`;
 
-  // Dispose of the tensors.
-  xs.dispose();
-  ys.dispose();
+// load loads a model from the given path.
+export async function load(path: SupportedLoadPath): Promise<Model> {
+  let loadInput: string | tf.io.IOHandler = path;
 
-  return prediction;
-}
-
-// bestMove picks the best move from a prediction.
-export function bestMove(prediction: Prediction): Move {
-  let max = -Infinity, maxName = "";
-  for (const [name, value] of Object.entries(prediction)) {
-    if (value > max) {
-      max = value;
-      maxName = name;
+  if (path.startsWith("http://") || path.startsWith("https://")) {
+    const response = await fetch(path);
+    if (!response.ok) {
+      throw new Error(`Failed to load model: ${response.statusText}`);
     }
+
+    const data = await response.text();
+    loadInput = tfModelLoader(data);
   }
-  return maxName as Move;
+
+  return await tf.loadLayersModel(loadInput);
 }
 
 export function tensorGameState(state: GameState): tf.Tensor2D {
-  return tf.tensor2d([
+  const v = [
     state.myBulletsLoaded,
     state.myShieldsRemaining,
     state.myKnifeOut ? 1 : 0,
     state.opponentBulletsLoaded,
     state.opponentShieldsRemaining,
     state.opponentKnifeOut ? 1 : 0,
-    state.turnCount,
-  ], [1, 7]);
+    state.turnCount > 0 ? 1 : 0,
+  ];
+  return tf.tensor2d(v, [1, v.length]);
+}
+
+// movePrediction converts a move to a prediction, where:
+//   - Reload:       [1, 0, 0, 0, 0]
+//   - Shoot:        [0, 1, 0, 0, 0]
+//   - Block:        [0, 0, 1, 0, 0]
+//   - TakeOutKnife: [0, 0, 0, 1, 0]
+//   - Stab:         [0, 0, 0, 0, 1]
+export function movePrediction(move: Move, value = 1): Prediction {
+  const prediction: Prediction = { reload: 0, shoot: 0, block: 0, takeOutKnife: 0, stab: 0 };
+  prediction[move] = value;
+  return prediction;
 }
 
 export function tensorPrediction(prediction: Prediction): tf.Tensor2D {
@@ -163,79 +82,50 @@ export function tensorPrediction(prediction: Prediction): tf.Tensor2D {
   ], [1, 5]);
 }
 
-// predictionIsGood returns true when the given move has its probability
-// be greater than the tolerance, and false otherwise.
-export function predictionIsGood(prediction: Prediction, move: Move, tolerance: number): boolean {
-  const wantPrediction = prediction[move];
+export function tfModelLoader(fileData: string) {
+  const lines = fileData.split("\n");
+  const out: tf.io.ModelArtifacts = {
+    modelTopology: JSON.parse(lines[0]),
+    weightSpecs: JSON.parse(lines[1]),
+    weightData: base64StringToArrayBuffer(lines[2]),
+  };
 
-  const differences = Object.entries(prediction)
-    .filter(([name]) => (name !== move))
-    .map(([_, value]) => (wantPrediction - value));
-
-  // Exit if any of the differences are negative.
-  // This means that the move we want is less likely than another move.
-  if (differences.find((value) => (value < 0)) !== undefined) {
-    return false;
-  }
-
-  const minTolerance = Math.min(...differences);
-  return tolerance < minTolerance;
-
-  // Current Tolerance Logit Stuff (Yawwwnnnn)
-  /*
-  1. Get the Ideal Move from Prediction
-  2. Loop Through all the Other Moves
-  3. MinTol = abs. difference between Ideal and Other Moves
-  4. If MinTol is greater than tolerance, return false
-
-
-  Prediction setup:
-  R: 0.4
-  S: 0.2
-  B: 0.1
-  U: 0.2
-  K: 0.1
-
-  Differences:
-  R-S: 0.2
-  R-B: 0.3
-  R-U: 0.2
-  R-K: 0.3
-
-  MinTol: 0.2
-  Tolerance < MinTol: True
-  return True.
-  */
+  return tf.io.fromMemory(
+    out.modelTopology,
+    out.weightSpecs,
+    out.weightData,
+  );
 }
 
-export class AIPlayer {
-  private player: PlayerState;
-  private opponent: PlayerState;
-  private turn: number;
-
-  constructor(private model: tf.LayersModel) {}
-
-  async play(): Promise<Move> {
-    const prediction = await predict(this.model, {
-      myBulletsLoaded: this.player.bulletsLoaded,
-      myShieldsRemaining: this.player.shieldsRemaining,
-      myKnifeOut: this.player.knifeOut,
-      opponentBulletsLoaded: this.opponent.bulletsLoaded,
-      opponentShieldsRemaining: this.opponent.shieldsRemaining,
-      opponentKnifeOut: this.opponent.knifeOut,
-      turnCount: this.turn,
-    });
-    for (const move of Object.values(Move)) {
-      if (!this.player.isLegal(move)) {
-        prediction[move as string] = -Infinity;
-      }
-    }
-    return bestMove(prediction);
+export function tfModelSave(modelArtifacts: tf.io.ModelArtifacts) {
+  if (!(modelArtifacts.weightData instanceof ArrayBuffer)) {
+    // I can't figure out CompositeArrayBuffer :(
+    throw "I give up lmao";
   }
 
-  update(player: PlayerState, opponent: PlayerState, turn: number) {
-    this.player = player;
-    this.opponent = opponent;
-    this.turn = turn;
+  const lines = [
+    JSON.stringify(modelArtifacts.modelTopology),
+    JSON.stringify(modelArtifacts.weightSpecs),
+    arrayBufferToBase64String(modelArtifacts.weightData),
+  ];
+
+  return lines.join("\n");
+}
+
+export function arrayBufferToBase64String(buffer: ArrayBuffer): string {
+  const buf = new Uint8Array(buffer);
+  let s = "";
+  for (let i = 0, l = buf.length; i < l; i++) {
+    s += String.fromCharCode(buf[i]);
   }
+  return btoa(s);
+}
+
+export function base64StringToArrayBuffer(str: string): ArrayBuffer {
+  const s = atob(str);
+  const buffer = new Uint8Array(s.length);
+  for (let i = 0; i < s.length; ++i) {
+    buffer.set([s.charCodeAt(i)], i);
+  }
+  return buffer.buffer;
 }

@@ -1,39 +1,48 @@
-#!/usr/bin/env -S deno run -A
+#!/usr/bin/env -S deno run -A --unstable
 
-import { Move } from "/game.ts";
 import trainingData from "/ai/training_data.ts";
+import { predictionIsGood, Trainer, TrainingData } from "/ai/trainer.ts";
+import { predict } from "/ai/predict.ts";
 import * as ai from "/ai/ai.ts";
+import * as flags from "std/flags/mod.ts";
 
-const weightLow = 0.1;
-const weightHigh = 1.0;
+const args = flags.parse(Deno.args, {
+  string: ["max-iterations"],
+  default: {
+    "max-iterations": "1000",
+  },
+});
+
+const maxIterations = parseInt(args["max-iterations"]);
 
 function shortPredictions(predictions: ai.Prediction): string {
-  return Object.entries(predictions).map(([_, value]) => value.toFixed(2)).join(", ");
+  return Object
+    .entries(predictions)
+    .map(([_, value]) => value.toFixed(2))
+    .join(", ");
 }
 
-async function train(trainingData: ai.TrainingData): Promise<number> {
-  const trainer = new ai.Trainer();
+const modelTimestamp = new Date().getTime();
+const modelDirectory = `${new URL(".", import.meta.url).pathname}models`;
+const modelName = `${modelDirectory}/train-${modelTimestamp}.model`;
+
+async function train(trainingData: TrainingData): Promise<void> {
+  const trainer = new Trainer();
   let iteration = 0;
-  while (true) {
+  while (iteration < maxIterations) {
+    let output = "";
+    output += `model: ${modelName}` + "\n\n";
+
     iteration++;
-    console.log(`iteration ${iteration}`);
+    output += `iteration ${iteration}` + "\n";
 
     // Train our model on all the training cases at once.
     for (const trainingCase of trainingData) {
-      console.log(`  training on ${trainingCase.name}...`);
+      output += `  training on ${trainingCase.name}...` + "\n";
       for (const data of trainingCase.data) {
         const epochs = data.epochs || trainingCase.epochs;
         await trainer.train(data.state, data.move, {
           epochs: epochs,
-          // moveWeight: Object
-          //   .values(Move)
-          //   .reduce(
-          //     (acc, move) => {
-          //       acc[move] = move === data.move ? weightHigh : weightLow;
-          //       return acc;
-          //     },
-          //     {} as ai.Prediction,
-          //   ),
         });
       }
     }
@@ -45,36 +54,34 @@ async function train(trainingData: ai.TrainingData): Promise<number> {
       for (const data of trainingCase.data) {
         const tolerance = data.tolerance || trainingCase.tolerance;
 
-        const prediction = await ai.predict(trainer.model, data.state);
+        const prediction = await predict(trainer.model, data.state);
         const predictionString = shortPredictions(prediction);
-        const predictionIsGood = ai.predictionIsGood(prediction, data.move, tolerance);
+        const predictionIsGood = predictionIsGood(prediction, data.move, tolerance);
 
         const info = [
           `prediction=${predictionString}`,
+          `good=${predictionIsGood ? "1" : "0"}`,
           `want=${data.move}`,
         ].join(", ");
+        output += `    ${info}: ${data.name}` + "\n";
 
         if (!predictionIsGood) {
           metTolerance = false;
-          console.log(`    ${info}: ${data.name} could not meet tolerance`);
-        } else {
-          console.log(`    ${info}: ${data.name} met tolerance`);
         }
       }
     }
+
+    console.log(output);
 
     if (metTolerance) {
       break;
     }
   }
-  return iteration;
+
+  console.log(`\n`);
+  console.log(`training stopped, took ${iteration} iterations total`);
+  console.log(`saving model to ${modelName}`);
+  await trainer.save(`file://${modelName}`);
 }
 
-for (let i = 0; i < 100; i++) {
-  const iterations = await train(trainingData);
-  console.log(`Trained in ${iterations} iterations.`);
-  if (iterations > 200) {
-    console.log(`Found a solution that took too long to train.`);
-    break;
-  }
-}
+await train(trainingData);
