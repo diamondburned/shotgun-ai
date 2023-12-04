@@ -13,6 +13,7 @@
     "lineWidth": 100
   },
   "tasks": {
+    "server": "deno run -A https://deno.land/std@0.208.0/http/file_server.ts -p 9000",
     "serve": "./build_frontend.ts && deno task server"
   },
   "imports": {
