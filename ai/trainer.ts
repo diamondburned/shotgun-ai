@@ -28,6 +28,8 @@ export type TrainOptions = Partial<{
 
 type SupportedSavePath = `file://${string}`;
 
+let tempCounter = 0;
+
 // Trainer defines a class that can train a model to play the shotgun game.
 // It exposes a model field that can be given to predict() to get a prediction
 // for a given game state.
@@ -84,7 +86,7 @@ export class Trainer {
         // then atomically moving it into place. This trick does not work
         // on Windows :)
         const saveTime = new Date().getTime();
-        const tempFile = `${filePath}.${saveTime}.tmp`;
+        const tempFile = `${filePath}.${saveTime}-${tempCounter++}.tmp`;
 
         const fileData = tfModelSave(artifacts);
         await Deno.writeTextFile(tempFile, fileData);
