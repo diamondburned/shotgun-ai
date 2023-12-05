@@ -49,7 +49,7 @@ const moveIcons: Record<Move, templates.TemplateID> = {
 
 let outcome: Outcome;
 do {
-  turnElem.textContent = `${game.turn}`;
+  turnElem.textContent = `${game.turn + 1}`;
   outcome = await game.play();
 
   if (game.moves.length == 1) {
