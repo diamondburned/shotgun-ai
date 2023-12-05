@@ -21,7 +21,7 @@
       </p>
     </hgroup>
 
-    <p>Turn <span id="turn">1</span></p>
+    <button id="game-state" disabled>Loading...</button>
   </header>
 
   <main>
@@ -41,7 +41,7 @@
     </section>
 
     <div id="vs">
-      <span class="result">vs.</span>
+      <span class="result"></span>
     </div>
 
     <section id="player2">
@@ -64,9 +64,7 @@
       <span>🧑</span>
       <span>🤖</span>
     </div>
-    <div id="move-history">
-      <span class="placeholder">Pick a move!</span>
-    </div>
+    <div id="move-history"></div>
     <button id="save-history" class="outline" disabled>
       <img
         src="https://fonts.gstatic.com/s/i/materialicons/save/v12/24px.svg"

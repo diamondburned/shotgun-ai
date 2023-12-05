@@ -9,8 +9,7 @@ const modelPath = `${window.location.origin}/ai/models/${modelName}`;
 
 const moveHistoryElem = document.getElementById("move-history");
 const saveHistoryButton = document.getElementById("save-history") as HTMLButtonElement;
-
-const turnElem = document.getElementById("turn");
+const gameStateButton = document.getElementById("game-state") as HTMLButtonElement;
 const vsResult = document.querySelector("#vs .result");
 
 const player1Elem = document.getElementById("player1");
@@ -25,7 +24,7 @@ const player2: Player = new AIPlayer(
   await ai.load(modelPath as `http://${string}` | `https://${string}`),
 );
 
-const game = new Game(player1, player2);
+let game: Game;
 
 saveHistoryButton.addEventListener("click", (ev) => {
   ev.preventDefault();
@@ -47,46 +46,73 @@ const moveIcons: Record<Move, templates.TemplateID> = {
   [Move.Stab]: "iconStab",
 };
 
-let outcome: Outcome;
-do {
-  turnElem.textContent = `${game.turn + 1}`;
-  outcome = await game.play();
+async function startGame() {
+  game = new Game(player1, player2);
 
-  if (game.moves.length == 1) {
-    moveHistoryElem.innerHTML = "";
-    saveHistoryButton.disabled = false;
+  saveHistoryButton.disabled = true;
+
+  moveHistoryElem.innerHTML = `
+    <span class="placeholder">Pick a move!</span>
+  `;
+
+  vsResult.textContent = "vs.";
+
+  player1Elem.classList.remove("player-won", "player-lost");
+  player2Elem.classList.remove("player-won", "player-lost");
+
+  let outcome: Outcome;
+  do {
+    gameStateButton.textContent = `Turn ${game.turn + 1}`;
+    gameStateButton.disabled = true;
+
+    outcome = await game.play();
+
+    if (game.moves.length == 1) {
+      moveHistoryElem.innerHTML = "";
+      saveHistoryButton.disabled = false;
+    }
+
+    const [p1Move, p2Move] = game.moves[game.moves.length - 1];
+
+    const p1MoveElem = templates.clone(moveIcons[p1Move]);
+    const p2MoveElem = templates.clone(moveIcons[p2Move]);
+
+    const moveItem = document.createElement("div");
+    moveItem.classList.add("move");
+    moveItem.appendChild(p1MoveElem);
+    moveItem.appendChild(p2MoveElem);
+
+    moveHistoryElem.appendChild(moveItem);
+  } while (outcome == Outcome.Continue);
+
+  switch (outcome) {
+    case Outcome.Player1Wins:
+      vsResult.textContent = "You win!";
+      player1Elem.classList.add("player-won");
+      player2Elem.classList.add("player-lost");
+      break;
+    case Outcome.Player2Wins:
+      vsResult.textContent = "skill issue";
+      player1Elem.classList.add("player-lost");
+      player2Elem.classList.add("player-won");
+      break;
+    case Outcome.Draw:
+      vsResult.textContent = "You both lose!";
+      player1Elem.classList.add("player-lost");
+      player2Elem.classList.add("player-lost");
+      break;
+    case Outcome.IllegalMove:
+      vsResult.textContent = "YOU CHEATER!";
+      break;
   }
 
-  const [p1Move, p2Move] = game.moves[game.moves.length - 1];
-
-  const p1MoveElem = templates.clone(moveIcons[p1Move]);
-  const p2MoveElem = templates.clone(moveIcons[p2Move]);
-
-  const moveItem = document.createElement("div");
-  moveItem.classList.add("move");
-  moveItem.appendChild(p1MoveElem);
-  moveItem.appendChild(p2MoveElem);
-
-  moveHistoryElem.appendChild(moveItem);
-} while (outcome == Outcome.Continue);
-
-switch (outcome) {
-  case Outcome.Player1Wins:
-    vsResult.textContent = "You win!";
-    player1Elem.classList.add("player-won");
-    player2Elem.classList.add("player-lost");
-    break;
-  case Outcome.Player2Wins:
-    vsResult.textContent = "skill issue";
-    player1Elem.classList.add("player-lost");
-    player2Elem.classList.add("player-won");
-    break;
-  case Outcome.Draw:
-    vsResult.textContent = "You both lose!";
-    player1Elem.classList.add("player-lost");
-    player2Elem.classList.add("player-lost");
-    break;
-  case Outcome.IllegalMove:
-    vsResult.textContent = "YOU CHEATER!";
-    break;
+  gameStateButton.disabled = false;
+  gameStateButton.textContent = "Play again";
 }
+
+gameStateButton.addEventListener("click", (ev) => {
+  ev.preventDefault();
+  startGame();
+});
+
+startGame();

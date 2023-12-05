@@ -133,7 +133,7 @@ body > main > * {
 }
 
 .blank-move {
-  border: 2px dashed;
+  border: 2px dashed var(--muted-color);
   background: none;
 }
 
@@ -161,6 +161,18 @@ body > main > * {
   .player-state > *:not(:first-child):not(:empty)::before {
     content: none;
   }
+}
+
+#game-state {
+  border: 2px solid var(--primary);
+  font-weight: bold;
+}
+
+#game-state[disabled] {
+  opacity: 1;
+  border-color: var(--muted-color);
+  border-style: dashed;
+  background: none;
 }
 
 #vs {
