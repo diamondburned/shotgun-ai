@@ -59,10 +59,46 @@
     </section>
   </main>
 
-  <footer>
-    <h2>History</h2>
-  </footer>
+  <aside class="move-container">
+    <div class="move">
+      <span>🧑</span>
+      <span>🤖</span>
+    </div>
+    <div id="move-history">
+      <span class="placeholder">Pick a move!</span>
+    </div>
+    <button id="save-history" class="outline" disabled>
+      <img
+        src="https://fonts.gstatic.com/s/i/materialicons/save/v12/24px.svg"
+        alt="Save"
+      />
+    </button>
+  </aside>
 </body>
+
+<template id="template-reload-icon">
+  <img class="svgrepo" src="static/icons/bullet.svg" alt="Reload" />
+</template>
+
+<template id="template-shoot-icon">
+  <img class="svgrepo" src="static/icons/gun.svg" alt="Shoot" />
+</template>
+
+<template id="template-block-icon">
+  <img class="svgrepo" src="static/icons/shield.svg" alt="Block" />
+</template>
+
+<template id="template-take-out-knife-icon">
+  <img
+    class="svgrepo"
+    src="static/icons/knife-sheath.svg"
+    alt="Take out knife"
+  />
+</template>
+
+<template id="template-stab-icon">
+  <img class="svgrepo" src="static/icons/knife-blood.svg" alt="Stab" />
+</template>
 
 <template id="template-button-reload">
   <button
