@@ -68,7 +68,7 @@ do {
   moveItem.appendChild(p2MoveElem);
 
   moveHistoryElem.appendChild(moveItem);
-} while (outcome == Outcome.Draw);
+} while (outcome == Outcome.Continue);
 
 switch (outcome) {
   case Outcome.Player1Wins:
@@ -80,5 +80,13 @@ switch (outcome) {
     vsResult.textContent = "skill issue";
     player1Elem.classList.add("player-lost");
     player2Elem.classList.add("player-won");
+    break;
+  case Outcome.Draw:
+    vsResult.textContent = "You both lose!";
+    player1Elem.classList.add("player-lost");
+    player2Elem.classList.add("player-lost");
+    break;
+  case Outcome.IllegalMove:
+    vsResult.textContent = "YOU CHEATER!";
     break;
 }

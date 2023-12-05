@@ -17,6 +17,7 @@ export interface Player {
 }
 
 export enum Outcome {
+  Continue = "continue",
   Draw = "draw",
   Player1Wins = "player1Wins",
   Player2Wins = "player2Wins",
@@ -101,8 +102,9 @@ function moveKillsOpponent(playerMove: Move, opponentMove: Move): boolean {
     case Move.TakeOutKnife:
       return false;
     case Move.Shoot:
-    case Move.Stab:
       return opponentMove != Move.Block;
+    case Move.Stab:
+      return opponentMove != Move.Block && opponentMove != Move.Shoot;
   }
 }
 
@@ -143,7 +145,7 @@ export class Game {
     const p1Kills = moveKillsOpponent(p1Move, p2Move);
     const p2Kills = moveKillsOpponent(p2Move, p1Move);
 
-    if (p1Kills == p2Kills) {
+    if (p1Kills && p2Kills) {
       return Outcome.Draw;
     }
 
@@ -154,6 +156,8 @@ export class Game {
     if (p2Kills) {
       return Outcome.Player2Wins;
     }
+
+    return Outcome.Continue;
   }
 
   private updatePlayers() {
