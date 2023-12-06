@@ -62,7 +62,7 @@ export function tensorGameState(state: GameState): tf.Tensor2D {
     state.opponentBulletsLoaded,
     state.opponentShieldsRemaining,
     state.opponentKnifeOut ? 1 : 0,
-    state.turnCount > 0 ? 1 : 0,
+    // state.turnCount > 0 ? 1 : 0,
   ];
   return tf.tensor2d(v, [1, v.length]);
 }

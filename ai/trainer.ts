@@ -39,7 +39,8 @@ export class Trainer {
     if (!model) {
       const model = tf.sequential();
 
-      model.add(tf.layers.dense({ units: 7, inputShape: [7] }));
+      // We Removed Turn Counts
+      model.add(tf.layers.dense({ units: 6, inputShape: [6] }));
       // this.model.add(tf.layers.dense({ units: 7, activation: "relu" }));
       // this.model.add(tf.layers.dense({ units: 7, activation: "relu" }));
       model.add(tf.layers.dropout({ rate: 0.5 }));
