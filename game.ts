@@ -179,7 +179,7 @@ export class Game {
     return outcome;
   }
 
-  private updatePlayers(outcome: Outcome) {
+  updatePlayers(outcome = Outcome.Continue) {
     const [p1, p2] = this.players;
     const [p1State, p2State] = this.states;
     p1.update(p1State, p2State, this.turn, outcome);

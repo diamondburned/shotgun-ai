@@ -34,10 +34,7 @@
       </div>
 
       <form class="player-moves"></form>
-
-      <div class="last-move">
-        <button class="player-move blank-move" disabled></button>
-      </div>
+      <div class="last-move"></div>
     </section>
 
     <div id="vs">
@@ -161,6 +158,10 @@
     <img class="svgrepo" src="static/icons/knife-blood.svg" />
     <span>Stab</span>
   </button>
+</template>
+
+<template id="template-button-blank-move">
+  <button class="player-move blank-move" disabled></button>
 </template>
 
 <script src="index.js" type="module"></script>

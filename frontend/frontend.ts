@@ -1,4 +1,5 @@
 import templates from "/frontend/templates.ts";
+import { TemplateID } from "/frontend/templates.ts";
 import { Move, PlayerState } from "/game.ts";
 
 export function updatePlayerState(state: PlayerState, el: HTMLElement) {
@@ -38,27 +39,15 @@ export function updatePlayerState(state: PlayerState, el: HTMLElement) {
   }
 }
 
-export function updateLastMove(lastMove: HTMLDivElement, move: Move) {
-  let templateID: keyof typeof templates._t;
-  switch (move) {
-    case Move.Reload:
-      templateID = "buttonReload";
-      break;
-    case Move.Shoot:
-      templateID = "buttonShoot";
-      break;
-    case Move.Block:
-      templateID = "buttonBlock";
-      break;
-    case Move.TakeOutKnife:
-      templateID = "buttonTakeOutKnife";
-      break;
-    case Move.Stab:
-      templateID = "buttonStab";
-      break;
-    default:
-      return;
-  }
+export function updateLastMove(lastMove: HTMLDivElement, move?: Move) {
+  const moveTemplates: Record<Move, TemplateID> = {
+    [Move.Reload]: "buttonReload",
+    [Move.Shoot]: "buttonShoot",
+    [Move.Block]: "buttonBlock",
+    [Move.TakeOutKnife]: "buttonTakeOutKnife",
+    [Move.Stab]: "buttonStab",
+  };
+  const templateID = moveTemplates[move] ?? "buttonBlankMove";
   const moveButton = templates.clone<HTMLButtonElement>(templateID);
   lastMove.innerHTML = "";
   lastMove.append(moveButton);

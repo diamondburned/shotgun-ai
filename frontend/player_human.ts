@@ -59,9 +59,7 @@ export class HumanPlayer {
   }
 
   private updateLastMove() {
-    if (this.lastMove) {
-      updateLastMove(this.lastMoveDiv, this.lastMove);
-    }
+    updateLastMove(this.lastMoveDiv, this.lastMove);
   }
 
   private updateMoves() {

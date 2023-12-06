@@ -33,12 +33,28 @@ export class AIPlayer {
     return this.lastMove;
   }
 
-  async trainWhenLost(opponentMove: Move): Promise<void> {
-    // Train this in small batches to avoid blocking the UI thread.
-    for (let i = 0; i < 5; i++) {
-      const epochs = 10;
-      await this.trainer.trainOnOpponent(this.gameState, opponentMove, { epochs });
-    }
+  trainWhenLost(opponentMove: Move): Promise<void> {
+    const iterations = 25;
+    const epochs = 10;
+    const timeout = 500;
+
+    return new Promise((resolve) => {
+      let trained = 0;
+      const keepTraining = () => {
+        trained++;
+        if (trained == iterations) {
+          resolve();
+          return;
+        }
+
+        this.trainer
+          .trainOnOpponent(this.gameState, opponentMove, { epochs })
+          .then(() => {
+            requestIdleCallback(keepTraining, { timeout });
+          });
+      };
+      requestIdleCallback(keepTraining, { timeout });
+    });
   }
 
   update(me: PlayerState, opponent: PlayerState, moves: number) {
@@ -49,7 +65,7 @@ export class AIPlayer {
     this.updateLastMove();
   }
 
-  private get gameState(): GameState {
+  private get gameState(): ai.GameState {
     return {
       myBulletsLoaded: this.state.bulletsLoaded,
       myShieldsRemaining: this.state.shieldsRemaining,
@@ -66,8 +82,6 @@ export class AIPlayer {
   }
 
   private updateLastMove() {
-    if (this.lastMove) {
-      updateLastMove(this.lastMoveDiv, this.lastMove);
-    }
+    updateLastMove(this.lastMoveDiv, this.lastMove);
   }
 }

@@ -4,6 +4,7 @@ export const templates = {
   buttonBlock: getTemplateWithID("button-block"),
   buttonTakeOutKnife: getTemplateWithID("button-take-out-knife"),
   buttonStab: getTemplateWithID("button-stab"),
+  buttonBlankMove: getTemplateWithID("button-blank-move"),
 
   iconReload: getTemplateWithID("reload-icon"),
   iconShoot: getTemplateWithID("shoot-icon"),

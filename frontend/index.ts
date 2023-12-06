@@ -55,6 +55,7 @@ async function startGame() {
   }
 
   game = new Game(player1, player2);
+  game.updatePlayers();
 
   saveHistoryButton.disabled = true;
 
@@ -119,8 +120,9 @@ async function startGame() {
   if (outcome == Outcome.Player1Wins) {
     // Secretly train the AI when it loses!
     const p1Move = game.moves[game.moves.length - 1][0];
+    const playerAI = player2 as AIPlayer;
     console.log(`AI lost, so training it to counter move ${p1Move}`);
-    trainingPromise = player2.trainWhenLost(p1Move).then(() => {
+    trainingPromise = playerAI.trainWhenLost(p1Move).then(() => {
       console.log("Training complete!");
     });
   }
