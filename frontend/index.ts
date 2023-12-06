@@ -4,7 +4,7 @@ import { AIPlayer } from "/frontend/player_ai.ts";
 import * as templates from "/frontend/templates.ts";
 import * as ai from "/ai/ai.ts";
 
-const modelName = "train-1701847978801.model";
+const modelName = "placeholder.model";
 const modelPath = `${window.location.origin}/ai/models/${modelName}`;
 
 const moveHistoryElem = document.getElementById("move-history");

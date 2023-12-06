@@ -19,7 +19,7 @@ const data: TrainingData = [
         move: Move.Reload,
       },
       // {
-      //   name: "If Reloaded Into Knife, Just Reload",
+      //   name: "If Reloaded Into Knife, Just Block",
       //   state: {
       //     myBulletsLoaded: 1,
       //     myShieldsRemaining: 9,
@@ -29,7 +29,7 @@ const data: TrainingData = [
       //     opponentKnifeOut: true,
       //     turnCount: 1,
       //   },
-      //   move: Move.Reload,
+      //   move: Move.Block,
       // },
       {
         name: "If Reloaded Into Block, Just Knife Out",
@@ -56,6 +56,20 @@ const data: TrainingData = [
           turnCount: 2,
         },
         move: Move.Stab,
+      },
+
+      {
+        name: "We Must Kill to Survive",
+        state: {
+          myBulletsLoaded: 1,
+          myShieldsRemaining: 8,
+          myKnifeOut: false,
+          opponentBulletsLoaded: 0,
+          opponentShieldsRemaining: 9,
+          opponentKnifeOut: true,
+          turnCount: 2,
+        },
+        move: Move.Shoot,
       },
       // {
       //   name: "If Reloaded Into Reload, Just Shoot",
@@ -273,19 +287,45 @@ const data: TrainingData = [
         },
         move: Move.Shoot,
       },
-      // {
-      //   name: "If they're Getting Stabby, we should Block",
-      //   state: {
-      //     myBulletsLoaded: 1,
-      //     myShieldsRemaining: 9,
-      //     myKnifeOut: false,
-      //     opponentBulletsLoaded: 0,
-      //     opponentShieldsRemaining: 9,
-      //     opponentKnifeOut: true,
-      //     turnCount: 2,
-      //   },
-      //   move: Move.Block,
-      // },
+      {
+        name: "If they're Getting Stabby, we should Block",
+        state: {
+          myBulletsLoaded: 1,
+          myShieldsRemaining: 9,
+          myKnifeOut: false,
+          opponentBulletsLoaded: 0,
+          opponentShieldsRemaining: 9,
+          opponentKnifeOut: true,
+          turnCount: 2,
+        },
+        move: Move.Block,
+      },
+      {
+        name: "Play it Safe when they Try to Trade",
+        state: {
+          myBulletsLoaded: 1,
+          myShieldsRemaining: 9,
+          myKnifeOut: true,
+          opponentBulletsLoaded: 2,
+          opponentShieldsRemaining: 7,
+          opponentKnifeOut: true,
+          turnCount: 6,
+        },
+        move: Move.Block,
+      },
+      {
+        name: "Kill a Desparate Knife Wielder",
+        state: {
+          myBulletsLoaded: 2,
+          myShieldsRemaining: 9,
+          myKnifeOut: false,
+          opponentBulletsLoaded: 0,
+          opponentShieldsRemaining: 9,
+          opponentKnifeOut: true,
+          turnCount: 3,
+        },
+        move: Move.Shoot,
+      },
       {
         name: "Opponent with 2 Bullets = Play it Safer",
         state: {
@@ -335,32 +375,6 @@ const data: TrainingData = [
           opponentShieldsRemaining: 6,
           opponentKnifeOut: true,
           turnCount: 13,
-        },
-        move: Move.Shoot,
-      },
-      {
-        name: "Play it Safe when they Try to Trade",
-        state: {
-          myBulletsLoaded: 1,
-          myShieldsRemaining: 9,
-          myKnifeOut: true,
-          opponentBulletsLoaded: 2,
-          opponentShieldsRemaining: 7,
-          opponentKnifeOut: true,
-          turnCount: 6,
-        },
-        move: Move.Block,
-      },
-      {
-        name: "Kill a Desparate Knife Wielder",
-        state: {
-          myBulletsLoaded: 2,
-          myShieldsRemaining: 9,
-          myKnifeOut: false,
-          opponentBulletsLoaded: 0,
-          opponentShieldsRemaining: 9,
-          opponentKnifeOut: true,
-          turnCount: 3,
         },
         move: Move.Shoot,
       },

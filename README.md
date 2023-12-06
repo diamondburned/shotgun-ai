@@ -6,7 +6,7 @@ AI project for the Shotgun Game.
 
 ```sh
 # Train a new model
-./ai/train.ts --max-iterations 300
+./ai/train.ts --max-iterations 500
 
 # Or a few...
 for i in {1..10}; do ./ai/train.ts --max-iterations 300; done
