@@ -14,6 +14,13 @@
   --color-stab: #9b59b6;
 }
 
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+}
+
 body > main,
 body > header {
   box-sizing: border-box;
@@ -193,7 +200,7 @@ body > main > * {
 .move-container {
   display: grid;
   grid-template-columns: auto 1fr auto;
-  margin: var(--typography-spacing-vertical) 0;
+  margin: var(--spacing) 0;
 }
 
 .move-container > .move {
