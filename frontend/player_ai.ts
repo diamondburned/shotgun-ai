@@ -34,9 +34,9 @@ export class AIPlayer {
   }
 
   async trainWhenLost(opponentMove: Move): Promise<void> {
-    for (let i = 0; i < 10; i++) {
-      // Train this in small batches to avoid blocking the UI thread.
-      const epochs = 5;
+    // Train this in small batches to avoid blocking the UI thread.
+    for (let i = 0; i < 5; i++) {
+      const epochs = 10;
       await this.trainer.trainOnOpponent(this.gameState, opponentMove, { epochs });
     }
   }
