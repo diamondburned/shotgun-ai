@@ -25,6 +25,7 @@ const player2: Player = new AIPlayer(
 );
 
 let game: Game;
+let trainingPromise: Promise<void>;
 
 saveHistoryButton.addEventListener("click", (ev) => {
   ev.preventDefault();
@@ -47,6 +48,12 @@ const moveIcons: Record<Move, templates.TemplateID> = {
 };
 
 async function startGame() {
+  // Ensure that the model is done training before starting the game.
+  // The player will never see it coming >:D
+  if (trainingPromise) {
+    await trainingPromise;
+  }
+
   game = new Game(player1, player2);
 
   saveHistoryButton.disabled = true;
@@ -108,6 +115,15 @@ async function startGame() {
 
   gameStateButton.disabled = false;
   gameStateButton.textContent = "Play again";
+
+  if (outcome == Outcome.Player1Wins) {
+    // Secretly train the AI when it loses!
+    const p1Move = game.moves[game.moves.length - 1][0];
+    console.log(`AI lost, so training it to counter move ${p1Move}`);
+    trainingPromise = player2.trainWhenLost(p1Move).then(() => {
+      console.log("Training complete!");
+    });
+  }
 }
 
 gameStateButton.addEventListener("click", (ev) => {

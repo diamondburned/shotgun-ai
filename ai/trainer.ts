@@ -1,4 +1,4 @@
-import { Move } from "/game.ts";
+import { Move, PlayerState } from "/game.ts";
 import {
   GameState,
   movePrediction,
@@ -58,11 +58,7 @@ export class Trainer {
   }
 
   // train trains the model to predict the given move for the given game state.
-  async train(
-    state: GameState,
-    intended: Move,
-    options: TrainOptions = {},
-  ) {
+  async train(state: GameState, intended: Move, options: TrainOptions = {}) {
     const xs = tensorGameState(state);
     const ys = tensorPrediction(movePrediction(intended));
 
@@ -74,6 +70,12 @@ export class Trainer {
     // Dispose of the tensors.
     xs.dispose();
     ys.dispose();
+  }
+
+  // trainOnOpponent trains the model to counter the opponent's move.
+  async trainOnOpponent(state: GameState, opponentMove: Move, options: TrainOptions = {}) {
+    const shouldveMoved = counterMove(state, opponentMove);
+    return await this.train(state, shouldveMoved, options);
   }
 
   async save(path: SupportedSavePath) {
@@ -150,4 +152,44 @@ export function predictionIsGood(prediction: Prediction, move: Move, tolerance: 
   Tolerance < MinTol: True
   return True.
   */
+}
+
+// counterMove returns the move that counters the given move.
+// Use this only when we lose the game. The function will return a move that
+// makes us not lose to the opponent's move.
+function counterMove(state: GameState, opponentMove: Move): Move | null {
+  const player = PlayerState.with({
+    bulletsLoaded: state.myBulletsLoaded,
+    shieldsRemaining: state.myShieldsRemaining,
+    knifeOut: state.myKnifeOut,
+  });
+
+  switch (opponentMove) {
+    case Move.Reload:
+    case Move.Block:
+    case Move.TakeOutKnife: {
+      return null;
+    }
+    case Move.Shoot: {
+      if (player.canBlock) {
+        return Move.Block;
+      }
+      if (player.canShoot) {
+        return Move.Shoot;
+      }
+      return null;
+    }
+    case Move.Stab: {
+      if (player.canBlock) {
+        return Move.Block;
+      }
+      if (player.canShoot) {
+        return Move.Shoot;
+      }
+      if (player.canStab) {
+        return Move.Stab;
+      }
+      return null;
+    }
+  }
 }

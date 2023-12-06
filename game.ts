@@ -13,7 +13,7 @@ export interface Player {
   play(): Promise<Move>;
   // update is called after the opponent makes a move. It is called with the
   // player's state, the opponent's state, and the turn number.
-  update(me: PlayerState, opponent: PlayerState, turn: number): void;
+  update(me: PlayerState, opponent: PlayerState, turn: number, outcome: Outcome): void;
 }
 
 export enum Outcome {
@@ -29,9 +29,19 @@ export class PlayerState {
   shieldsRemaining = 9;
   knifeOut = false;
 
-  constructor(
-    public readonly player: Player,
-  ) {}
+  static with(obj: {
+    bulletsLoaded: number;
+    shieldsRemaining: number;
+    knifeOut: boolean;
+  }): PlayerState {
+    const state = new PlayerState();
+    state.bulletsLoaded = obj.bulletsLoaded;
+    state.shieldsRemaining = obj.shieldsRemaining;
+    state.knifeOut = obj.knifeOut;
+    return state;
+  }
+
+  constructor() {}
 
   // isLegal returns true if the given move is legal.
   isLegal(move: Move): boolean {
@@ -108,61 +118,71 @@ function moveKillsOpponent(playerMove: Move, opponentMove: Move): boolean {
   }
 }
 
+function calculateOutcome(p1Move: Move, p2Move: Move): Outcome {
+  const p1Kills = moveKillsOpponent(p1Move, p2Move);
+  const p2Kills = moveKillsOpponent(p2Move, p1Move);
+
+  if (p1Kills && p2Kills) {
+    return Outcome.Draw;
+  }
+
+  if (p1Kills) {
+    return Outcome.Player1Wins;
+  }
+
+  if (p2Kills) {
+    return Outcome.Player2Wins;
+  }
+
+  return Outcome.Continue;
+}
+
 export class Game {
   turn = 0;
   moves: [Move, Move][] = [];
   states: [PlayerState, PlayerState];
+  players: [Player, Player];
 
   constructor(
     player1: Player,
     player2: Player,
   ) {
+    this.players = [player1, player2];
     this.states = [
-      new PlayerState(player1),
-      new PlayerState(player2),
+      new PlayerState(),
+      new PlayerState(),
     ];
-    this.updatePlayers();
+    this.updatePlayers(Outcome.Continue);
   }
 
   // play asks the players to make a move. It blocks until both players make a
   // move, then returns the outcome of the game. The game should be played
   // until the outcome is not a draw.
   async play(): Promise<Outcome> {
-    const [p1State, p2State] = this.states;
+    const [p1, p2] = this.players;
     const [p1Move, p2Move] = await Promise.all([
-      p1State.player.play(),
-      p2State.player.play(),
+      p1.play(),
+      p2.play(),
     ]);
 
+    const [p1State, p2State] = this.states;
     if (!p1State.update(p1Move) || !p2State.update(p2Move)) {
       return Outcome.IllegalMove;
     }
 
+    const outcome = calculateOutcome(p1Move, p2Move);
+
     this.turn++;
     this.moves.push([p1Move, p2Move]);
-    this.updatePlayers();
+    this.updatePlayers(outcome);
 
-    const p1Kills = moveKillsOpponent(p1Move, p2Move);
-    const p2Kills = moveKillsOpponent(p2Move, p1Move);
-
-    if (p1Kills && p2Kills) {
-      return Outcome.Draw;
-    }
-
-    if (p1Kills) {
-      return Outcome.Player1Wins;
-    }
-
-    if (p2Kills) {
-      return Outcome.Player2Wins;
-    }
-
-    return Outcome.Continue;
+    return outcome;
   }
 
-  private updatePlayers() {
+  private updatePlayers(outcome: Outcome) {
+    const [p1, p2] = this.players;
     const [p1State, p2State] = this.states;
-    p1State.player.update(p1State, p2State, this.turn);
-    p2State.player.update(p2State, p1State, this.turn);
+    p1.update(p1State, p2State, this.turn, outcome);
+    p2.update(p2State, p1State, this.turn, outcome);
   }
 }
