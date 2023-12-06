@@ -12,14 +12,19 @@ const args = flags.parse(Deno.args, {
     "max-iterations",
     "model-path",
   ],
+  boolean: [
+    "keep-training",
+  ],
   default: {
     "max-iterations": "" + 1_000_000,
     "model-path": "",
+    "keep-training": false,
   },
 });
 
 const maxIterations = parseInt(args["max-iterations"]);
 const modelPath = args["model-path"];
+const keepTraining = args["keep-training"];
 
 function shortPredictions(predictions: ai.Prediction): string {
   return Object
@@ -82,7 +87,7 @@ while (iteration < maxIterations) {
   console.log(output);
   await trainer.save(`file://${modelName}`);
 
-  if (metTolerance) {
+  if (!keepTraining && metTolerance) {
     break;
   }
 }
