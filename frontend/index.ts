@@ -117,15 +117,15 @@ async function startGame() {
   gameStateButton.disabled = false;
   gameStateButton.textContent = "Play again";
 
-  if (outcome == Outcome.Player1Wins) {
-    // Secretly train the AI when it loses!
-    const p1Move = game.moves[game.moves.length - 1][0];
-    const playerAI = player2 as AIPlayer;
-    console.log(`AI lost, so training it to counter move ${p1Move}`);
-    trainingPromise = playerAI.trainWhenLost(p1Move).then(() => {
-      console.log("Training complete!");
-    });
-  }
+  // if (outcome == Outcome.Player1Wins) {
+  //   // Secretly train the AI when it loses!
+  //   const p1Move = game.moves[game.moves.length - 1][0];
+  //   const playerAI = player2 as AIPlayer;
+  //   console.log(`AI lost, so training it to counter move ${p1Move}`);
+  //   trainingPromise = playerAI.trainWhenLost(p1Move).then(() => {
+  //     console.log("Training complete!");
+  //   });
+  // }
 }
 
 gameStateButton.addEventListener("click", (ev) => {
