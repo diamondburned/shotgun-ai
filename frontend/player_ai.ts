@@ -13,7 +13,6 @@ export class AIPlayer {
   private state: PlayerState;
   private trainer: Trainer;
   private opponent: PlayerState;
-  private lastMove?: Move;
 
   constructor(id: string, private model: ai.Model) {
     this.element = document.getElementById(id);
@@ -29,8 +28,7 @@ export class AIPlayer {
         prediction[move as string] = -Infinity;
       }
     }
-    this.lastMove = bestMove(prediction);
-    return this.lastMove;
+    return bestMove(prediction);
   }
 
   trainWhenLost(opponentMove: Move): Promise<void> {
@@ -57,12 +55,12 @@ export class AIPlayer {
     });
   }
 
-  update(me: PlayerState, opponent: PlayerState, moves: number) {
+  update(me: PlayerState, opponent: PlayerState, moves: number, lastMove: Move) {
     this.state = me;
     this.opponent = opponent;
     this.turn = moves;
     this.updateState();
-    this.updateLastMove();
+    updateLastMove(this.lastMoveDiv, lastMove);
   }
 
   private get gameState(): ai.GameState {
@@ -79,9 +77,5 @@ export class AIPlayer {
 
   private updateState() {
     updatePlayerState(this.state, this.stateElem);
-  }
-
-  private updateLastMove() {
-    updateLastMove(this.lastMoveDiv, this.lastMove);
   }
 }

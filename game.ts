@@ -13,7 +13,7 @@ export interface Player {
   play(): Promise<Move>;
   // update is called after the opponent makes a move. It is called with the
   // player's state, the opponent's state, and the turn number.
-  update(me: PlayerState, opponent: PlayerState, turn: number, outcome: Outcome): void;
+  update(me: PlayerState, opponent: PlayerState, turn: number, lastMove: Move): void;
 }
 
 export enum Outcome {
@@ -152,7 +152,7 @@ export class Game {
       new PlayerState(),
       new PlayerState(),
     ];
-    this.updatePlayers(Outcome.Continue);
+    this.updatePlayers();
   }
 
   // play asks the players to make a move. It blocks until both players make a
@@ -174,15 +174,16 @@ export class Game {
 
     this.turn++;
     this.moves.push([p1Move, p2Move]);
-    this.updatePlayers(outcome);
+    this.updatePlayers();
 
     return outcome;
   }
 
-  updatePlayers(outcome = Outcome.Continue) {
+  updatePlayers() {
     const [p1, p2] = this.players;
+    const [p1Move, p2Move] = this.moves[this.moves.length - 1] || [null, null];
     const [p1State, p2State] = this.states;
-    p1.update(p1State, p2State, this.turn, outcome);
-    p2.update(p2State, p1State, this.turn, outcome);
+    p1.update(p1State, p2State, this.turn, p1Move);
+    p2.update(p2State, p1State, this.turn, p2Move);
   }
 }

@@ -18,7 +18,6 @@ export class HumanPlayer {
   private lastMoveDiv: HTMLDivElement;
 
   private state: PlayerState;
-  private lastMove?: Move;
   private resolveMove: (move: Move) => void;
 
   constructor(id: string) {
@@ -40,26 +39,20 @@ export class HumanPlayer {
   }
 
   async play(): Promise<Move> {
-    const move = await new Promise<Move>((resolve) => {
+    return await new Promise<Move>((resolve) => {
       this.resolveMove = resolve;
       this.updateMoves();
     });
-    this.lastMove = move;
-    return move;
   }
 
-  update(me: PlayerState, _opponent: PlayerState, _moves: number) {
+  update(me: PlayerState, _opponent: PlayerState, _moves: number, lastMove: Move) {
     this.state = me;
-    this.updateLastMove();
     this.updateState();
+    updateLastMove(this.lastMoveDiv, lastMove);
   }
 
   private updateState() {
     updatePlayerState(this.state, this.stateElem);
-  }
-
-  private updateLastMove() {
-    updateLastMove(this.lastMoveDiv, this.lastMove);
   }
 
   private updateMoves() {
