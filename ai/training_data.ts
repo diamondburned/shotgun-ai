@@ -1,4 +1,4 @@
-import type { TrainingData } from "/ai/ai.ts";
+import type { TrainingData } from "/ai/trainer.ts";
 import { Move } from "/game.ts";
 
 const data: TrainingData = [
