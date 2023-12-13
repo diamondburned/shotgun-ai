@@ -213,10 +213,8 @@ body > main > * {
   flex-direction: row;
   align-items: center;
   justify-content: flex-start;
-  gap: calc(var(--spacing));
   overflow-x: scroll;
   white-space: nowrap;
-  padding: 0 calc(var(--spacing));
 }
 
 #move-history span.placeholder {
@@ -228,11 +226,15 @@ body > main > * {
   display: flex;
   flex-direction: column;
   gap: var(--spacing);
-  padding: var(--spacing) 0;
+  width: 4rem;
+  height: 100%;
+  aspect-ratio: 1;
 }
 
 .move img {
-  width: 3em;
+  width: 3rem;
+  aspect-ratio: 1;
+  margin: auto;
 }
 
 .move span {
